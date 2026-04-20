@@ -57,14 +57,12 @@ function App() {
       <Route path="/admin" element={<AdminLayout />}>
       <Route index element={<AdminHome />} />
 
-
         <Route path="addcategory" element={<AddCategory />} />
         <Route path="adddoctor" element={<AddDoctor />} />
         <Route path="updatecategory/:id" element={<UpdateCategory />} />
 
         <Route path="listcategory" element={<ListCategory />} />
         <Route path="listdoctor" element={<ListDoctor />} />
-
 
       </Route>
     </Routes>
