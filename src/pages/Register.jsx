@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+// ✅ API BASE URL
+const API = "https://doctor-backend-qqv2.onrender.com";
+
 const Register = () => {
   const navigate = useNavigate();
 
@@ -14,7 +17,7 @@ const Register = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:8080/register", {
+      const res = await axios.post(`${API}/register`, {
         name,
         email,
         password,
@@ -23,7 +26,6 @@ const Register = () => {
       if (res.data.msg) {
         setMessage("Account created successfully ✅");
 
-        // redirect to login after 1 sec
         setTimeout(() => {
           navigate("/login");
         }, 1000);
@@ -50,7 +52,6 @@ const Register = () => {
 
         <p>Please sign up to book appointment</p>
 
-        {/* Name */}
         <div className="w-full">
           <p>Full Name</p>
           <input
@@ -62,7 +63,6 @@ const Register = () => {
           />
         </div>
 
-        {/* Email */}
         <div className="w-full">
           <p>Email</p>
           <input
@@ -74,7 +74,6 @@ const Register = () => {
           />
         </div>
 
-        {/* Password */}
         <div className="w-full">
           <p>Password</p>
           <input
@@ -86,17 +85,14 @@ const Register = () => {
           />
         </div>
 
-        {/* Message */}
         {message && (
           <p className="text-green-600 text-sm">{message}</p>
         )}
 
-        {/* Button */}
         <button className="bg-primary text-white w-full py-2 rounded-md text-base">
           Register
         </button>
 
-        {/* Go to Login */}
         <p>
           Already have an account?{" "}
           <span

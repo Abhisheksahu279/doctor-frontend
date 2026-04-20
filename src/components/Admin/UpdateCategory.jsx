@@ -1,8 +1,10 @@
 // src/components/Admin/UpdateCategory.jsx
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+
+const API = "https://doctor-backend-qqv2.onrender.com";
 
 const UpdateCategory = () => {
   const { id } = useParams();
@@ -12,7 +14,30 @@ const UpdateCategory = () => {
   const [image, setImage] = useState(null);
   const [msg, setMsg] = useState("");
 
-  const updateCat = () => {
+  // ✅ FETCH EXISTING DATA (IMPORTANT)
+  useEffect(() => {
+    axios.get(`${API}/list_dr_category`)
+      .then((res) => {
+        if (res.data.msg === "ok") {
+          const cat = res.data.result.find(
+            (item) => item.id === Number(id)
+          );
+
+          if (cat) {
+            setCatName(cat.catname);
+          }
+        }
+      })
+      .catch((err) => console.log(err));
+  }, [id]);
+
+  // ✅ UPDATE FUNCTION
+  const updateCat = async () => {
+    if (!catname) {
+      setMsg("Category name required ❌");
+      return;
+    }
+
     let formdata = new FormData();
     formdata.append("catname", catname);
 
@@ -20,23 +45,32 @@ const UpdateCategory = () => {
       formdata.append("image", image);
     }
 
-    axios.put(`https://doctor-backend-qqv2.onrender.com/updateCategory/${id}`, formdata)
-      .then((res) => {
-        if (res.data.msg) {
-          setMsg("Updated successfully ✅");
-
-          // redirect after update
-          setTimeout(() => {
-            navigate("/admin/listcategory");
-          }, 1000);
-        } else {
-          setMsg("Update failed ❌");
+    try {
+      const res = await axios.put(
+        `${API}/updateCategory/${id}`,
+        formdata,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
         }
-      })
-      .catch((err) => {
-        console.log(err);
-        setMsg("Error ❌");
-      });
+      );
+
+      if (res.data.msg) {
+        setMsg("Updated successfully ✅");
+
+        setTimeout(() => {
+          navigate("/admin/listcategory");
+        }, 1000);
+
+      } else {
+        setMsg("Update failed ❌");
+      }
+
+    } catch (err) {
+      console.log(err);
+      setMsg("Server error ❌");
+    }
   };
 
   return (

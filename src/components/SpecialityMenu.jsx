@@ -6,7 +6,7 @@ const SpecialityMenu = () => {
   const [catlist, setCatList] = useState([]);
   const [errmsg, setErrMsg] = useState("");
 
-  const navigate = useNavigate(); // ⭐ IMPORTANT
+  const navigate = useNavigate(); // 
 
   useEffect(() => {
     axios.get("https://doctor-backend-qqv2.onrender.com/list_dr_category")

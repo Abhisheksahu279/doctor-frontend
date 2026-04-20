@@ -1,21 +1,25 @@
-// used for the delete category
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+
+// ✅ Base URL (VERY IMPORTANT)
+const API = "https://doctor-backend-qqv2.onrender.com";
 
 const ListCategory = () => {
   const [data, setData] = useState([]);
   const navigate = useNavigate();
 
   // ================= FETCH DATA =================
-  const fetchData = () => {
-   axios.get("https://doctor-backend-qqv2.onrender.com/list_dr_category")
-      .then((res) => {
-        if (res.data.msg === "ok") {
-          setData(res.data.result);
-        }
-      })
-      .catch((err) => console.log(err));
+  const fetchData = async () => {
+    try {
+      const res = await axios.get(`${API}/list_dr_category`);
+
+      if (res.data.msg === "ok") {
+        setData(res.data.result);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   useEffect(() => {
@@ -23,20 +27,20 @@ const ListCategory = () => {
   }, []);
 
   // ================= DELETE CATEGORY =================
-  const deleteCat = (id) => {
-    if (!window.confirm("Delete this category?")) return;
+  const deleteCat = async (id) => {
+    const confirmDelete = window.confirm("Delete this category?");
+    if (!confirmDelete) return;
 
-    axios.delete(`https://doctor-backend-qqv2.onrender.com/deleteCategory/${id}`)
-      .then((res) => {
-        console.log(res.data);
+    try {
+      await axios.delete(`${API}/deleteCategory/${id}`);
 
-        // refresh list after delete
-        fetchData();
-      })
-      .catch((err) => {
-        console.log(err);
-        alert("Delete failed");
-      });
+      // ✅ instant UI update (no reload needed)
+      setData((prev) => prev.filter((item) => item.id !== id));
+
+    } catch (err) {
+      console.log(err);
+      alert("Delete failed ❌");
+    }
   };
 
   return (
@@ -54,39 +58,53 @@ const ListCategory = () => {
         </thead>
 
         <tbody>
-          {data.map((item) => (
-            <tr key={item.id} className="text-center border">
+          {data.length > 0 ? (
+            data.map((item) => (
+              <tr key={item.id} className="text-center border">
 
-              <td>{item.id}</td>
+                <td>{item.id}</td>
 
-              <td>{item.catname}</td>
+                <td>{item.catname}</td>
 
-              <td>
-                <img
-                  src={`data:image/jpeg;base64,${item.catimage}`}
-                  alt="category"
-                  className="w-16 h-16 object-cover mx-auto rounded"
-                />
+                <td>
+                  {item.catimage ? (
+                    <img
+                      src={`data:image/jpeg;base64,${item.catimage}`}
+                      alt="category"
+                      className="w-16 h-16 object-cover mx-auto rounded"
+                    />
+                  ) : (
+                    <span>No Image</span>
+                  )}
+                </td>
+
+                <td className="space-x-2">
+                  <button
+                    onClick={() => deleteCat(item.id)}
+                    className="bg-red-500 text-white px-3 py-1 rounded"
+                  >
+                    Delete
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      navigate(`/admin/updatecategory/${item.id}`)
+                    }
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+                  >
+                    Edit
+                  </button>
+                </td>
+
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="4" className="text-center py-4">
+                No categories found
               </td>
-
-              <td className="space-x-2">
-                <button
-                  onClick={() => deleteCat(item.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded"
-                >
-                  Delete
-                </button>
-
-                <button
-                  onClick={() => navigate(`/admin/updatecategory/${item.id}`)}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
-                >
-                  Edit
-                </button>
-              </td>
-
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>

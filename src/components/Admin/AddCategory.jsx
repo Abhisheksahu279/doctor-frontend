@@ -1,6 +1,9 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
 
+// ✅ API BASE
+const API = "https://doctor-backend-qqv2.onrender.com";
+
 const AddCategory = () => {
 
     const [catname, setCatName] = useState('');
@@ -12,7 +15,7 @@ const AddCategory = () => {
         setImage(event.target.files[0]);
     };
 
-    const addCatSubmit = () => {
+    const addCatSubmit = async () => {
 
         if (!catname || !image) {
             alert("Fill all fields");
@@ -23,11 +26,20 @@ const AddCategory = () => {
         formdataObject.append('image', image);
         formdataObject.append('catname', catname);
 
-       axios.get("https://doctor-backend-qqv2.onrender.com/addCategorySubmit", formdataObject)
-        .then((response) => {
+        try {
+            // ✅ FIXED → POST instead of GET
+            const response = await axios.post(
+                `${API}/addCategorySubmit`,
+                formdataObject,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                }
+            );
 
-            if (response.data.result) { 
-                setMsg(response.data.result);
+            if (response.data.msg === "ok") {
+                setMsg("Category added successfully ✅");
             } else {
                 setMsg(response.data.error);
             }
@@ -35,8 +47,11 @@ const AddCategory = () => {
             setCatName('');
             setImage(null);
             fileInputRef.current.value = "";
-        })
-        .catch(() => setMsg("Error occurred"));
+
+        } catch (error) {
+            console.log(error);
+            setMsg("Error occurred ❌");
+        }
     };
 
     return (

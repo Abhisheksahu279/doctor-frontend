@@ -1,48 +1,52 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+const API = "https://doctor-backend-qqv2.onrender.com";
+
 const ListDoctor = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  //  Fetch--Doctors
-  const fetchData = () => {
+  // ================= FETCH =================
+  const fetchData = async () => {
     setLoading(true);
 
-    axios.get("https://doctor-backend-qqv2.onrender.com/alldoctorslist")
-      .then((res) => {
-        if (res.data.msg === "ok") {
-          setData(res.data.result);
-        } else {
-          alert("Failed to load doctors ");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        alert("Server error ");
-      })
-      .finally(() => setLoading(false));
+    try {
+      const res = await axios.get(`${API}/alldoctorslist`);
+
+      if (res.data.msg === "ok") {
+        setData(res.data.result);
+      } else {
+        alert("Failed to load doctors ❌");
+      }
+
+    } catch (err) {
+      console.log(err);
+      alert("Server error ❌");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  // DELETE--DOCTOR
-  const deleteDoctor = (id) => {
-    if (!window.confirm("Delete this doctor? ❗")) return;
+  // ================= DELETE =================
+  const deleteDoctor = async (id) => {
+    const confirmDelete = window.confirm("Delete this doctor? ❗");
+    if (!confirmDelete) return;
 
-    axios.delete(`https://doctor-backend-qqv2.onrender.com/deleteDoctor/${id}`)
-      .then((res) => {
-        alert(res.data.msg || "Doctor deleted ");
+    try {
+      await axios.delete(`${API}/deleteDoctor/${id}`);
 
-        
-        setData((prev) => prev.filter((doc) => doc.id !== id));
-      })
-      .catch((err) => {
-        console.log(err);
-        alert("Delete failed ");
-      });
+      // ✅ instant UI update (no reload)
+      setData((prev) => prev.filter((doc) => doc.id !== id));
+
+    } catch (err) {
+      console.log(err);
+      alert("Delete failed ❌");
+    }
   };
 
   return (
@@ -72,7 +76,7 @@ const ListDoctor = () => {
 
                 <td>{item.dr_name}</td>
 
-                <td>{item.catname}</td>
+                <td>{item.catname || "N/A"}</td>
 
                 <td>
                   {item.dr_image ? (

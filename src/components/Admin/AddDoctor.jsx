@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+const API = "https://doctor-backend-qqv2.onrender.com";
+
 const AddDoctor = () => {
   const [errmsg, setErrMsg] = useState("");
   const [msg, setMsg] = useState("");
@@ -17,14 +19,14 @@ const AddDoctor = () => {
   const [address2, setAddress2] = useState("");
   const [gender, setGender] = useState("");
 
-  // 🔥 NEW FIELDS
   const [degree, setDegree] = useState("");
-const [experience, setExperience] = useState("");
-const [fees, setFees] = useState("");
-const [about, setAbout] = useState("");
+  const [experience, setExperience] = useState("");
+  const [fees, setFees] = useState("");
+  const [about, setAbout] = useState("");
 
+  // ✅ GET CATEGORIES
   useEffect(() => {
-   axios.get("https://doctor-backend-qqv2.onrender.com/list_dr_category")
+    axios.get(`${API}/list_dr_category`)
       .then((response) => {
         if (response.data.msg === "ok") {
           setCatlist(response.data.result);
@@ -39,7 +41,8 @@ const [about, setAbout] = useState("");
     setImage(event.target.files[0]);
   };
 
-  const addDrSubmit = (event) => {
+  // ✅ FIXED FUNCTION
+  const addDrSubmit = async (event) => {
     event.preventDefault();
 
     if (!drname || !email || !pwd) {
@@ -74,39 +77,50 @@ const [about, setAbout] = useState("");
     formdataObject.append("address2", address2);
     formdataObject.append("email", email);
     formdataObject.append("pwd", pwd);
-
-    // 🔥 ADD NEW DATA
     formdataObject.append("degree", degree);
     formdataObject.append("experience", experience);
     formdataObject.append("fees", fees);
     formdataObject.append("about", about);
 
-   axios.get("https://doctor-backend-qqv2.onrender.com/addDrSubmit", formdataObject)
-      .then((response) => {
-        if (response.data.result > 0) {
-          setMsg("Doctor saved successfully");
-          setErrMsg("");
-
-          // RESET
-          setDrName("");
-          setDr_catId("");
-          setImage(null);
-          setEmail("");
-          setPWD("");
-          setDob("");
-          setDoj("");
-          setAddress1("");
-          setAddress2("");
-          setGender("");
-          setDegree("");
-          setExperience("");
-          setFees("");
-          setAbout("");
-        } else {
-          setErrMsg(response.data.error);
+    try {
+      // ✅ POST (IMPORTANT FIX)
+      const response = await axios.post(
+        `${API}/addDrSubmit`,
+        formdataObject,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
         }
-      })
-      .catch((error) => console.log(error));
+      );
+
+      if (response.data.msg === "ok") {
+        setMsg("Doctor saved successfully ✅");
+        setErrMsg("");
+
+        // RESET FORM
+        setDrName("");
+        setDr_catId("");
+        setImage(null);
+        setEmail("");
+        setPWD("");
+        setDob("");
+        setDoj("");
+        setAddress1("");
+        setAddress2("");
+        setGender("");
+        setDegree("");
+        setExperience("");
+        setFees("");
+        setAbout("");
+      } else {
+        setErrMsg(response.data.error);
+      }
+
+    } catch (error) {
+      console.log(error);
+      setErrMsg("Server error ❌");
+    }
   };
 
   return (
@@ -148,12 +162,11 @@ const [about, setAbout] = useState("");
           <input type="date" value={doj} onChange={(e) => setDoj(e.target.value)}
             className="border p-2 rounded" />
 
-          {/* 🔥 NEW FIELDS UI */}
-          <input type="text" placeholder="Degree (MBBS, MD...)"
+          <input type="text" placeholder="Degree"
             value={degree} onChange={(e) => setDegree(e.target.value)}
             className="border p-2 rounded" />
 
-          <input type="number" placeholder="Experience (years)"
+          <input type="number" placeholder="Experience"
             value={experience} onChange={(e) => setExperience(e.target.value)}
             className="border p-2 rounded" />
 
@@ -161,10 +174,9 @@ const [about, setAbout] = useState("");
             value={fees} onChange={(e) => setFees(e.target.value)}
             className="border p-2 rounded" />
 
-          <textarea placeholder="About Doctor"
+          <textarea placeholder="About"
             value={about} onChange={(e) => setAbout(e.target.value)}
-            className="border p-2 rounded md:col-span-2"
-          />
+            className="border p-2 rounded md:col-span-2" />
 
           <input type="text" placeholder="Address 1"
             value={address1} onChange={(e) => setAddress1(e.target.value)}

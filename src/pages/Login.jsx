@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";   // ✅ added
+import axios from "axios";
+
+// ✅ API BASE URL
+const API = "https://doctor-backend-qqv2.onrender.com";
 
 const Login = () => {
   const [state, setState] = useState("Sign Up");
@@ -11,16 +14,14 @@ const Login = () => {
   const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
-  
 
-  // 🔥 UPDATED FUNCTION
   const onSubmitHandler = async (event) => {
     event.preventDefault();
 
     try {
       if (state === "Sign Up") {
-        // ✅ REGISTER API
-        const res = await axios.post("http://localhost:8080/register", {
+        // ✅ REGISTER
+        const res = await axios.post(`${API}/register`, {
           name,
           email,
           password,
@@ -28,14 +29,14 @@ const Login = () => {
 
         if (res.data.msg) {
           setMessage("Account created successfully ✅");
-          setState("Login"); // switch to login
+          setState("Login");
         } else {
           setMessage(res.data.error);
         }
 
       } else {
-        // ✅ LOGIN API
-        const res = await axios.post("http://localhost:8080/login", {
+        // ✅ LOGIN
+        const res = await axios.post(`${API}/login`, {
           email,
           password,
         });
@@ -43,7 +44,6 @@ const Login = () => {
         if (res.data.msg === "Login success") {
           setMessage("Login successful ✅");
 
-          // ✅ SAVE USER
           localStorage.setItem("user", JSON.stringify(res.data.user));
           localStorage.setItem("token", res.data.token);
 
@@ -61,7 +61,6 @@ const Login = () => {
       setMessage("Server error ❌");
     }
 
-    // clear inputs
     setName("");
     setEmail("");
     setPassword("");
@@ -70,7 +69,7 @@ const Login = () => {
   return (
     <form onSubmit={onSubmitHandler} className="min-h-[80vh] flex items-center">
       <div className="flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border rounded-xl text-zinc-600 text-sm shadow-lg">
-        
+
         <p className="text-2xl font-semibold">
           {state === "Sign Up" ? "Create Account" : "Login"}
         </p>

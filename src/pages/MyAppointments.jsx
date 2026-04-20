@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom"; // ✅ ADDED
+import { useLocation } from "react-router-dom";
 import axios from "axios";
+
+// ✅ API BASE URL
+const API = "https://doctor-backend-qqv2.onrender.com";
 
 const MyAppointments = () => {
   const [appointments, setAppointments] = useState([]);
 
-  const location = useLocation(); // ✅ ADDED
+  const location = useLocation();
 
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id;
@@ -15,27 +18,33 @@ const MyAppointments = () => {
     if (!userId) return;
 
     axios
-      .get(`http://localhost:8080/myappointments/${userId}`)
+      .get(`${API}/myappointments/${userId}`)
       .then((res) => {
         if (res.data.msg === "ok") {
           setAppointments(res.data.result);
         }
       })
-      .catch((err) => console.log(err));
-  }, [userId, location]); // ✅ UPDATED (IMPORTANT)
+      .catch((err) => {
+        console.log(err);
+        alert("Failed to load appointments ❌");
+      });
+  }, [userId, location]);
 
   // ================= DELETE =================
   const deleteAppointment = (id) => {
     if (!window.confirm("Cancel this appointment?")) return;
 
     axios
-      .delete(`http://localhost:8080/deleteAppointment/${id}`)
+      .delete(`${API}/deleteAppointment/${id}`)
       .then(() => {
         setAppointments((prev) =>
           prev.filter((item) => item.id !== id)
         );
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+        alert("Failed to delete ❌");
+      });
   };
 
   // ================= FORMAT DATE =================

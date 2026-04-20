@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+// ✅ API BASE URL
+const API = "https://doctor-backend-qqv2.onrender.com";
+
 const Appointment = () => {
   const { docId } = useParams();
   const navigate = useNavigate();
@@ -29,9 +32,9 @@ const Appointment = () => {
     }
   }, []);
 
-  // FETCH DOCTOR
+  // ✅ FETCH DOCTOR (FIXED)
   useEffect(() => {
-    axios.get("http://localhost:8080/alldoctorslist")
+    axios.get(`${API}/alldoctorslist`)
       .then((res) => {
         if (res.data.msg === "ok") {
           const doctor = res.data.result.find(
@@ -78,7 +81,7 @@ const Appointment = () => {
     setDocSlots(allSlots);
   }, [docInfo]);
 
-  // BOOK APPOINTMENT
+  // ✅ BOOK APPOINTMENT (FIXED)
   const bookAppointment = async () => {
     if (!slotTime) return alert("Please select time ❌");
     if (!patientName || !patientEmail || !patientPhone || !reason)
@@ -90,7 +93,7 @@ const Appointment = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/bookAppointment",
+        `${API}/bookAppointment`,
         {
           doc_id: docId,
           user_id: userId,
@@ -133,7 +136,6 @@ const Appointment = () => {
             <h2 className="text-2xl font-bold">{docInfo.dr_name}</h2>
             <p className="text-gray-500">{docInfo.catname}</p>
 
-            {/* ✅ NEW DATA */}
             <div className="mt-3 space-y-1 text-gray-700">
               <p><b>Degree:</b> {docInfo.degree || "N/A"}</p>
               <p><b>Experience:</b> {docInfo.experience || 0} years</p>
