@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
-// ✅ API BASE URL
 const API = "https://doctor-backend-qqv2.onrender.com";
 
 const Doctors = () => {
@@ -15,42 +14,44 @@ const Doctors = () => {
 
   const navigate = useNavigate();
 
-  // 🔥 Fetch categories
+  // ✅ FETCH CATEGORIES (SAFE)
   useEffect(() => {
     axios.get(`${API}/list_dr_category`)
       .then(res => {
-        if (res.data.msg === "ok") {
-          setCatList(res.data.result);
+        if (res.data?.msg === "ok") {
+          setCatList(res.data?.result || []);
+        } else {
+          setCatList([]);
         }
       })
-      .catch(err => console.log(err));
+      .catch(() => setCatList([]));
   }, []);
 
-  // 🔥 Fetch doctors
+  // ✅ FETCH DOCTORS (SAFE)
   useEffect(() => {
     axios.get(`${API}/alldoctorslist`)
       .then(res => {
-        if (res.data.msg === "ok") {
-          setDrList(res.data.result);
+        if (res.data?.msg === "ok") {
+          setDrList(res.data?.result || []);
+        } else {
+          setDrList([]);
         }
       })
-      .catch(err => console.log(err));
+      .catch(() => setDrList([]));
   }, []);
 
-  // 🔥 Filter doctors based on category
+  // ✅ FILTER (SAFE)
   useEffect(() => {
-    if (speciality) {
+    if (speciality && drlist.length > 0) {
       const decoded = decodeURIComponent(speciality);
 
-      const filtered = drlist.filter(
-        (doc) =>
-          doc.catname?.toLowerCase().trim() ===
-          decoded.toLowerCase().trim()
+      const filtered = (drlist || []).filter((doc) =>
+        doc.catname?.toLowerCase().trim() === decoded.toLowerCase().trim()
       );
 
       setFilterDoc(filtered);
     } else {
-      setFilterDoc(drlist);
+      setFilterDoc(drlist || []);
     }
   }, [speciality, drlist]);
 
@@ -63,7 +64,7 @@ const Doctors = () => {
 
       <div className="flex flex-col sm:flex-row gap-6">
 
-        {/* Filter Button (Mobile) */}
+        {/* Filter Button */}
         <button
           className="sm:hidden bg-blue-500 text-white px-4 py-2 rounded"
           onClick={() => setShowFilter(!showFilter)}
@@ -72,16 +73,10 @@ const Doctors = () => {
         </button>
 
         {/* Sidebar */}
-        <div
-          className={`
-            ${showFilter ? "block" : "hidden"} 
-            sm:block 
-            sm:w-1/4 
-            w-full
-          `}
-        >
+        <div className={`${showFilter ? "block" : "hidden"} sm:block sm:w-1/4 w-full`}>
           <div className="flex flex-col gap-3">
-            {catList.map((cat) => (
+
+            {(catList || []).map((cat) => (
               <div
                 key={cat.id}
                 onClick={() =>
@@ -98,6 +93,7 @@ const Doctors = () => {
                 {cat.catname}
               </div>
             ))}
+
           </div>
         </div>
 
@@ -105,7 +101,7 @@ const Doctors = () => {
         <div className="sm:w-3/4 w-full">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
 
-            {filterDoc.length > 0 ? (
+            {filterDoc?.length > 0 ? (
               filterDoc.map((doc) => (
                 <div
                   key={doc.id}
@@ -113,7 +109,7 @@ const Doctors = () => {
                   className="bg-white border rounded-xl shadow hover:shadow-lg transition p-4 cursor-pointer"
                 >
                   <img
-                    src={`data:image/jpeg;base64,${doc.dr_image}`}
+                    src={`data:image/jpeg;base64,${doc.dr_image || ""}`}
                     className="w-full h-40 object-cover rounded-lg"
                     alt="doctor"
                   />

@@ -14,15 +14,15 @@ const ListDoctor = () => {
     try {
       const res = await axios.get(`${API}/alldoctorslist`);
 
-      if (res.data.msg === "ok") {
-        setData(res.data.result);
+      if (res.data?.msg === "ok") {
+        setData(res.data?.result || []);
       } else {
-        alert("Failed to load doctors ❌");
+        setData([]);
       }
 
     } catch (err) {
       console.log(err);
-      alert("Server error ❌");
+      setData([]);
     } finally {
       setLoading(false);
     }
@@ -40,8 +40,7 @@ const ListDoctor = () => {
     try {
       await axios.delete(`${API}/deleteDoctor/${id}`);
 
-      // ✅ instant UI update (no reload)
-      setData((prev) => prev.filter((doc) => doc.id !== id));
+      setData((prev) => (prev || []).filter((doc) => doc.id !== id));
 
     } catch (err) {
       console.log(err);
@@ -55,7 +54,7 @@ const ListDoctor = () => {
 
       {loading ? (
         <p className="text-gray-500">Loading...</p>
-      ) : data.length === 0 ? (
+      ) : (data || []).length === 0 ? (
         <p className="text-red-500">No doctors found</p>
       ) : (
         <table className="w-full border shadow-md">
@@ -70,8 +69,9 @@ const ListDoctor = () => {
           </thead>
 
           <tbody>
-            {data.map((item) => (
+            {(data || []).map((item) => (
               <tr key={item.id} className="text-center border hover:bg-gray-50">
+
                 <td className="p-2">{item.id}</td>
 
                 <td>{item.dr_name}</td>
@@ -98,6 +98,7 @@ const ListDoctor = () => {
                     Delete
                   </button>
                 </td>
+
               </tr>
             ))}
           </tbody>

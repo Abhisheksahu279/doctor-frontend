@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-// ✅ Base URL (VERY IMPORTANT)
 const API = "https://doctor-backend-qqv2.onrender.com";
 
 const ListCategory = () => {
@@ -14,11 +13,14 @@ const ListCategory = () => {
     try {
       const res = await axios.get(`${API}/list_dr_category`);
 
-      if (res.data.msg === "ok") {
-        setData(res.data.result);
+      if (res.data?.msg === "ok") {
+        setData(res.data?.result || []);
+      } else {
+        setData([]);
       }
     } catch (err) {
       console.log(err);
+      setData([]);
     }
   };
 
@@ -34,8 +36,8 @@ const ListCategory = () => {
     try {
       await axios.delete(`${API}/deleteCategory/${id}`);
 
-      // ✅ instant UI update (no reload needed)
-      setData((prev) => prev.filter((item) => item.id !== id));
+      // safe UI update
+      setData((prev) => (prev || []).filter((item) => item.id !== id));
 
     } catch (err) {
       console.log(err);
@@ -58,8 +60,8 @@ const ListCategory = () => {
         </thead>
 
         <tbody>
-          {data.length > 0 ? (
-            data.map((item) => (
+          {(data || []).length > 0 ? (
+            (data || []).map((item) => (
               <tr key={item.id} className="text-center border">
 
                 <td>{item.id}</td>
