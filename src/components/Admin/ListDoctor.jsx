@@ -80,11 +80,11 @@ const ListDoctor = () => {
 
                 <td>
                   {item.dr_image ? (
-                    <img
-                      src={`data:image/jpeg;base64,${item.dr_image}`}
-                      alt="doctor"
-                      className="w-16 h-16 object-cover mx-auto rounded"
-                    />
+                   <img
+                    src={`${API}${item.dr_image}`}
+                    alt={item.dr_name}
+                    className="w-16 h-16 object-cover mx-auto rounded"
+                  />
                   ) : (
                     <p>No Image</p>
                   )}
