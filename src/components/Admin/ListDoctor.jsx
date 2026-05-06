@@ -3,132 +3,109 @@ import axios from "axios";
 
 const API = "https://doctor-backend-qqv2.onrender.com";
 
-const AddDoctor = () => {
-  const [errmsg, setErrMsg] = useState("");
-  const [msg, setMsg] = useState("");
-  const [catlist, setCatlist] = useState([]);
+const ListDoctor = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const [drname, setDrName] = useState("");
-  const [dr_catid, setDr_catId] = useState("");
-  const [image, setImage] = useState(null);
-
-  // ================= GET CATEGORY =================
-
-  useEffect(() => {
-    axios
-      .get(`${API}/list_dr_category`)
-      .then((response) => {
-        if (response.data.msg === "ok") {
-          setCatlist(response.data.result);
-        }
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
-  // ================= IMAGE =================
-
-  const setDrImage = (event) => {
-    setImage(event.target.files[0]);
-  };
-
-  // ================= ADD DOCTOR =================
-
-  const addDrSubmit = async (event) => {
-    event.preventDefault();
-
-    if (!drname || !image || !dr_catid) {
-      setErrMsg("Please fill all fields");
-      return;
-    }
-
-    let formdataObject = new FormData();
-
-    formdataObject.append("dr_name", drname);
-    formdataObject.append("dr_catid", dr_catid);
-    formdataObject.append("image", image);
+  // ================= FETCH =================
+  const fetchData = async () => {
+    setLoading(true);
 
     try {
-      const response = await axios.post(
-        `${API}/addDrSubmit`,
-        formdataObject,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const res = await axios.get(`${API}/alldoctorslist`);
 
-      if (response.data.msg === "Doctor added") {
-        setMsg("Doctor added successfully ✅");
-        setErrMsg("");
-
-        setDrName("");
-        setDr_catId("");
-        setImage(null);
-
+      if (res.data?.msg === "ok") {
+        setData(res.data?.result || []);
       } else {
-        setErrMsg(response.data.error);
+        setData([]);
       }
 
-    } catch (error) {
-      console.log(error);
-      setErrMsg("Server error ❌");
+    } catch (err) {
+      console.log(err);
+      setData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // ================= DELETE =================
+  const deleteDoctor = async (id) => {
+    const confirmDelete = window.confirm("Delete this doctor? ❗");
+    if (!confirmDelete) return;
+
+    try {
+      await axios.delete(`${API}/deleteDoctor/${id}`);
+
+      setData((prev) => (prev || []).filter((doc) => doc.id !== id));
+
+    } catch (err) {
+      console.log(err);
+      alert("Delete failed ❌");
     }
   };
 
   return (
-    <div className="w-full">
+    <div className="p-4">
+      <h2 className="text-2xl font-bold mb-4">Doctor List</h2>
 
-      <h2 className="text-3xl font-bold mb-6">
-        Add Doctor
-      </h2>
+      {loading ? (
+        <p className="text-gray-500">Loading...</p>
+      ) : (data || []).length === 0 ? (
+        <p className="text-red-500">No doctors found</p>
+      ) : (
+        <table className="w-full border shadow-md">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="p-2">ID</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Image</th>
+              <th>Action</th>
+            </tr>
+          </thead>
 
-      {msg && <p className="text-green-600">{msg}</p>}
-      {errmsg && <p className="text-red-600">{errmsg}</p>}
+          <tbody>
+            {(data || []).map((item) => (
+              <tr key={item.id} className="text-center border hover:bg-gray-50">
 
-      <form
-        onSubmit={addDrSubmit}
-        className="bg-white p-6 rounded-xl shadow-md space-y-4"
-      >
+                <td className="p-2">{item.id}</td>
 
-        <input
-          type="text"
-          placeholder="Doctor Name"
-          value={drname}
-          onChange={(e) => setDrName(e.target.value)}
-          className="w-full border p-2 rounded"
-        />
+                <td>{item.dr_name}</td>
 
-        <select
-          value={dr_catid}
-          onChange={(e) => setDr_catId(e.target.value)}
-          className="w-full border p-2 rounded"
-        >
-          <option value="">Select Category</option>
+                <td>{item.catname || "N/A"}</td>
 
-          {catlist.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.catname}
-            </option>
-          ))}
-        </select>
+                <td>
+                  {item.dr_image ? (
+                    <img
+                      src={`data:image/jpeg;base64,${item.dr_image}`}
+                      alt="doctor"
+                      className="w-16 h-16 object-cover mx-auto rounded"
+                    />
+                  ) : (
+                    <p>No Image</p>
+                  )}
+                </td>
 
-        <input
-          type="file"
-          onChange={setDrImage}
-          className="w-full border p-2 rounded"
-        />
+                <td>
+                  <button
+                    onClick={() => deleteDoctor(item.id)}
+                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition"
+                  >
+                    Delete
+                  </button>
+                </td>
 
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Save Doctor
-        </button>
-
-      </form>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
 
-export default AddDoctor;
+export default ListDoctor;
