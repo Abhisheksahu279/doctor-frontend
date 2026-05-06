@@ -42,10 +42,10 @@ const TopDoctors = () => {
             >
               {/* Image */}
               <img
-                src={`data:image/jpeg;base64,${doc.dr_image}`}
-                className="w-full h-40 object-cover rounded-lg"
-                alt="doctor"
-              />
+                  src={`https://doctor-backend-qqv2.onrender.com${doc.dr_image}`}
+                  className="w-full h-40 object-cover rounded-lg"
+                  alt="doctor"
+                />
 
               {/* Info */}
               <div className="mt-3 text-center">

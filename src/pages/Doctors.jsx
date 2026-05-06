@@ -108,8 +108,8 @@ const Doctors = () => {
                   onClick={() => navigate(`/appointment/${doc.id}`)}
                   className="bg-white border rounded-xl shadow hover:shadow-lg transition p-4 cursor-pointer"
                 >
-                  <img
-                    src={`data:image/jpeg;base64,${doc.dr_image || ""}`}
+                 <img
+                    src={`${API}${doc.dr_image}`}
                     className="w-full h-40 object-cover rounded-lg"
                     alt="doctor"
                   />
