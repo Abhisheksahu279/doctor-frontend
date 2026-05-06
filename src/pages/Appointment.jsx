@@ -127,10 +127,10 @@ const Appointment = () => {
         {/* Doctor Info */}
         <div className="flex gap-6 mb-6">
           <img
-            src={`data:image/jpeg;base64,${docInfo.dr_image}`}
-            className="w-40 rounded"
-            alt=""
-          />
+              src={`${API}${docInfo.dr_image}`}
+              className="w-40 rounded"
+              alt={docInfo.dr_name}
+            />
 
           <div>
             <h2 className="text-2xl font-bold">{docInfo.dr_name}</h2>
