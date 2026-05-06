@@ -77,7 +77,7 @@ const AddDoctor = () => {
     try {
       // IMPORTANT FIX
       const response = await axios.post(
-        `${API}/addDoctor`,
+        `${API}/addDrSubmit`,
         formdataObject,
         {
           headers: {
