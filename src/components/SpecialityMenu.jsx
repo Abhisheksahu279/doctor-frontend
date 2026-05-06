@@ -49,7 +49,7 @@ const SpecialityMenu = () => {
               {category.catimage ? (
                 <img
                   className="w-16 h-16 sm:w-20 sm:h-20 mb-2 object-cover rounded-full"
-                  src={`data:image/jpeg;base64,${category.catimage}`}
+                  src={`https://doctor-backend-qqv2.onrender.com${category.catimage}`}
                   alt={category.catname}
                 />
               ) : (
